@@ -1,0 +1,48 @@
+default:
+  image: rust:1.89
+  before_script:
+    - cp ./debian-forky.sources /etc/apt/sources.list.d
+    - apt-get update
+    - apt-get install -y -t forky libwireshark-dev
+
+stages:
+  - build
+  - test
+
+build:library:
+  stage: build
+  script:
+    - cargo build --release
+  after_script:
+    - mv target/release/libmac_privacy_dissector.so ./mac_privacy.so
+  artifacts:
+    when: on_success
+    paths:
+      - mac_privacy.so
+
+build:debian:
+  stage: build
+  script:
+    - cargo install --locked cargo-deb
+    - cargo deb
+  after_script:
+    - mv target/debian/*.deb ./
+  artifacts:
+    when: on_success
+    paths:
+      - "*.deb"
+
+test:
+  stage: test
+  before_script:
+    # Install wireshark from Forky to make sure we have the right version
+    # As of this writing, v4.6.x is not available yet for Debian Trixie
+    - cp ./debian-forky.sources /etc/apt/sources.list.d
+    - apt-get update
+    - apt-get install -y -t forky libwireshark-dev tshark
+  script:
+    - apt-get install -y ./*.deb
+    # Run unit and  integration tests
+    - cargo test
+    # Run fuzz tests
+    - cargo test -- --ignored

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# On install or upgrade, create a symbolic link in Wireshark's Global Plugins directory to out library.
+
+set -e;
+
+case "$1" in
+    configure)
+
+    # Print tshark folders, find the entry for Global Plugins and get just the path.
+    WS_PLUGIN_DIR="$(tshark -G folders | grep -i "^Global Plugins" | sed 's/^Global Plugins:[[:space:]]*//i')"
+    mkdir -p "$WS_PLUGIN_DIR/epan"
+    ln -s /opt/mac_privacy/libmac_privacy_dissector.so "$WS_PLUGIN_DIR/epan/mac_privacy.so";
+esac
+
+#DEBHELPER#
