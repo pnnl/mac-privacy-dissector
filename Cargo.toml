@@ -3,7 +3,7 @@ name = "mac_privacy_dissector"
 description = "MAC Privacy (802.1AEdk) dissector for Wireshark"
 version = "0.1.0"
 authors = ["Smith, Cameron T <cameron.smith@pnnl.gov>"]
-license = "GPL-2.0"
+license = "GPL-3.0"
 edition = "2024"
 publish = false
 
